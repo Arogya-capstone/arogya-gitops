@@ -1,0 +1,22 @@
+{{- if .Values.ragWorker.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: rag-worker-scaledobject
+  namespace: {{ .Values.global.namespace }}
+spec:
+  scaleTargetRef:
+    name: rag-worker
+  minReplicaCount: 0
+  maxReplicaCount: 5
+  cooldownPeriod: 60
+  triggers:
+  - type: aws-sqs-queue
+    authenticationRef:
+      name: keda-aws-credentials
+    metadata:
+      queueURL: {{ .Values.ragWorker.sqsQueueUrl | quote }}
+      queueLength: "5"
+      awsRegion: {{ .Values.global.awsRegion | quote }}
+      identityOwner: operator
+{{- end }}

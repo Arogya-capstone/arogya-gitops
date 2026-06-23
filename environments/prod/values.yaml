@@ -1,0 +1,36 @@
+# Prod environment overrides — updated by CD pipeline (after manual approval)
+global:
+  imageRegistry: "371454942267.dkr.ecr.us-east-1.amazonaws.com"
+  imageTag: "sha-latest"
+  awsRegion: "us-east-1"
+  awsAccountId: "371454942267"
+  namespace: "arogya-prod"
+
+s3:
+  bucketName: "arogya-prod-documents-371454942267"
+
+services:
+  user-service:
+    replicas: 2
+  appointment-service:
+    replicas: 2
+  health-service:
+    replicas: 2
+  document-service:
+    replicas: 2
+  rag-service:
+    replicas: 2
+  frontend:
+    replicas: 2
+
+ragWorker:
+  sqsQueueUrl: "https://sqs.us-east-1.amazonaws.com/371454942267/arogya-prod-rag-processing"
+
+irsa:
+  userServiceRoleArn: ""        # populated after terraform apply
+  appointmentServiceRoleArn: ""
+  healthServiceRoleArn: ""
+  documentServiceRoleArn: ""
+  ragServiceRoleArn: ""
+  ragWorkerRoleArn: ""
+  kedaRoleArn: ""

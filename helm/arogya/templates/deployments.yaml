@@ -1,0 +1,125 @@
+{{- $ns := .Values.global.namespace }}
+{{- $registry := .Values.global.imageRegistry }}
+{{- $tag := .Values.global.imageTag }}
+
+{{- range $name, $svc := .Values.services }}
+{{- if $svc.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ $ns }}
+  labels:
+    app: {{ $name }}
+    app.kubernetes.io/part-of: arogya
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: {{ $svc.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+    spec:
+      serviceAccountName: sa-{{ $name }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: {{ $name }}
+        image: {{ $registry }}/arogya/{{ $name }}:{{ $tag }}
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: {{ $svc.port }}
+        env:
+        - name: AWS_DEFAULT_REGION
+          value: "us-east-1"
+        - name: APP_ENV
+          value: {{ $ns | replace "arogya-" "" | quote }}
+        livenessProbe:
+          httpGet: { path: /health, port: http }
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          failureThreshold: 3
+        readinessProbe:
+          httpGet: { path: /health, port: http }
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: {{ $svc.resources.requests.cpu | quote }}
+            memory: {{ $svc.resources.requests.memory | quote }}
+          limits:
+            cpu: {{ $svc.resources.limits.cpu | quote }}
+            memory: {{ $svc.resources.limits.memory | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: {{ $name }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.ragWorker.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-worker
+  namespace: {{ $ns }}
+  labels:
+    app: rag-worker
+    app.kubernetes.io/part-of: arogya
+spec:
+  selector:
+    matchLabels:
+      app: rag-worker
+  template:
+    metadata:
+      labels:
+        app: rag-worker
+    spec:
+      serviceAccountName: sa-rag-worker
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: rag-worker
+        image: {{ $registry }}/arogya/rag-worker:{{ $tag }}
+        imagePullPolicy: Always
+        env:
+        - name: AWS_DEFAULT_REGION
+          value: {{ .Values.global.awsRegion | quote }}
+        - name: APP_SECRETS_PREFIX
+          value: "arogya/{{ .Values.global.namespace | replace "arogya-" "" }}/"
+        - name: CHUNK_SIZE
+          value: {{ .Values.ragWorker.chunkSize | quote }}
+        - name: CHUNK_OVERLAP
+          value: {{ .Values.ragWorker.chunkOverlap | quote }}
+        resources:
+          requests:
+            cpu: {{ .Values.ragWorker.resources.requests.cpu | quote }}
+            memory: {{ .Values.ragWorker.resources.requests.memory | quote }}
+          limits:
+            cpu: {{ .Values.ragWorker.resources.limits.cpu | quote }}
+            memory: {{ .Values.ragWorker.resources.limits.memory | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+{{- end }}

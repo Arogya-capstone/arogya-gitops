@@ -1,0 +1,13 @@
+# Helm
+charts/
+*.tgz
+
+# Secrets
+*.pem
+*.key
+.env
+secrets.yaml
+
+# OS
+.DS_Store
+Thumbs.db

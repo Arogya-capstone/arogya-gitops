@@ -1,0 +1,90 @@
+{{- $ns := .Values.global.namespace }}
+---
+# Public routes (no JWT required)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: public-routes
+  namespace: {{ $ns }}
+spec:
+  parentRefs:
+  - name: arogya-gateway
+    namespace: {{ $ns }}
+  rules:
+  - matches:
+    - path: { type: PathPrefix, value: /api/auth }
+    backendRefs:
+    - name: user-service
+      port: 8001
+  - matches:
+    - path: { type: PathPrefix, value: /health }
+    backendRefs:
+    - name: user-service
+      port: 8001
+  - matches:
+    - path: { type: PathPrefix, value: / }
+    backendRefs:
+    - name: frontend
+      port: 80
+---
+# Protected routes (JWT required — enforced by SecurityPolicy)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: protected-routes
+  namespace: {{ $ns }}
+spec:
+  parentRefs:
+  - name: arogya-gateway
+    namespace: {{ $ns }}
+  rules:
+  - matches:
+    - path: { type: PathPrefix, value: /api/users }
+    backendRefs:
+    - name: user-service
+      port: 8001
+  - matches:
+    - path: { type: PathPrefix, value: /api/appointments }
+    backendRefs:
+    - name: appointment-service
+      port: 8002
+  - matches:
+    - path: { type: PathPrefix, value: /api/health }
+    backendRefs:
+    - name: health-service
+      port: 8003
+  - matches:
+    - path: { type: PathPrefix, value: /api/documents }
+    backendRefs:
+    - name: document-service
+      port: 8004
+  - matches:
+    - path: { type: PathPrefix, value: /api/rag }
+    backendRefs:
+    - name: rag-service
+      port: 8005
+  - matches:
+    - path: { type: PathPrefix, value: /rag }
+    backendRefs:
+    - name: rag-service
+      port: 8005
+---
+# JWT SecurityPolicy on protected routes
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: jwt-policy
+  namespace: {{ $ns }}
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: protected-routes
+  jwt:
+    providers:
+    - name: arogya-auth
+      issuer: "arogya-user-service"
+      audiences: ["arogya-api"]
+      localJwks:
+        inline: |
+          { "keys": [] }

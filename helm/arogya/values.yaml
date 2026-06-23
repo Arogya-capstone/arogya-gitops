@@ -1,0 +1,78 @@
+# Default values — overridden by environments/dev/values.yaml or environments/prod/values.yaml
+
+global:
+  imageRegistry: ""          # set by CD pipeline: <account>.dkr.ecr.us-east-1.amazonaws.com
+  imageTag: "sha-latest"     # updated by CD pipeline on each deploy
+  awsRegion: "us-east-1"
+  awsAccountId: ""           # set per environment
+  namespace: "arogya-dev"
+
+s3:
+  bucketName: ""             # set per environment
+
+services:
+  user-service:
+    enabled: true
+    replicas: 1
+    port: 8001
+    resources:
+      requests: { cpu: "100m", memory: "128Mi" }
+      limits:   { cpu: "500m", memory: "512Mi" }
+
+  appointment-service:
+    enabled: true
+    replicas: 1
+    port: 8002
+    resources:
+      requests: { cpu: "100m", memory: "128Mi" }
+      limits:   { cpu: "500m", memory: "512Mi" }
+
+  health-service:
+    enabled: true
+    replicas: 1
+    port: 8003
+    resources:
+      requests: { cpu: "100m", memory: "128Mi" }
+      limits:   { cpu: "500m", memory: "512Mi" }
+
+  document-service:
+    enabled: true
+    replicas: 1
+    port: 8004
+    resources:
+      requests: { cpu: "100m", memory: "128Mi" }
+      limits:   { cpu: "500m", memory: "512Mi" }
+
+  rag-service:
+    enabled: true
+    replicas: 1
+    port: 8005
+    resources:
+      requests: { cpu: "200m", memory: "256Mi" }
+      limits:   { cpu: "500m", memory: "512Mi" }
+
+  frontend:
+    enabled: true
+    replicas: 1
+    port: 80
+    resources:
+      requests: { cpu: "100m", memory: "128Mi" }
+      limits:   { cpu: "300m", memory: "256Mi" }
+
+ragWorker:
+  enabled: true
+  sqsQueueUrl: ""            # set per environment
+  chunkSize: "500"
+  chunkOverlap: "50"
+  resources:
+    requests: { cpu: "200m", memory: "256Mi" }
+    limits:   { cpu: "1000m", memory: "1Gi" }
+
+irsa:
+  userServiceRoleArn: ""
+  appointmentServiceRoleArn: ""
+  healthServiceRoleArn: ""
+  documentServiceRoleArn: ""
+  ragServiceRoleArn: ""
+  ragWorkerRoleArn: ""
+  kedaRoleArn: ""

@@ -1,0 +1,36 @@
+# Dev environment overrides — updated by CD pipeline
+global:
+  imageRegistry: "371454942267.dkr.ecr.us-east-1.amazonaws.com"
+  imageTag: "sha-latest"
+  awsRegion: "us-east-1"
+  awsAccountId: "371454942267"
+  namespace: "arogya-dev"
+
+s3:
+  bucketName: "arogya-dev-documents-371454942267"
+
+services:
+  user-service:
+    replicas: 1
+  appointment-service:
+    replicas: 1
+  health-service:
+    replicas: 1
+  document-service:
+    replicas: 1
+  rag-service:
+    replicas: 1
+  frontend:
+    replicas: 1
+
+ragWorker:
+  sqsQueueUrl: "https://sqs.us-east-1.amazonaws.com/371454942267/arogya-dev-rag-processing"
+
+irsa:
+  userServiceRoleArn: ""        # populated after terraform apply
+  appointmentServiceRoleArn: ""
+  healthServiceRoleArn: ""
+  documentServiceRoleArn: ""
+  ragServiceRoleArn: ""
+  ragWorkerRoleArn: ""
+  kedaRoleArn: ""
