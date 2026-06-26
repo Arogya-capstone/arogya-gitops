@@ -1,0 +1,62 @@
+# Network policies for arogya-prod
+# 1. Default deny all ingress — nothing gets in unless explicitly allowed
+# 2. Allow traffic from KGateway (envoy-gateway-system) to all app pods
+# 3. Allow intra-namespace — services talk to each other internally
+# 4. Allow all egress — pods reach AWS services, PubMed, Groq, etc.
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: {{ .Values.global.namespace }}
+spec:
+  podSelector: {}       # applies to ALL pods in namespace
+  policyTypes:
+    - Ingress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-gateway
+  namespace: {{ .Values.global.namespace }}
+spec:
+  podSelector: {}       # all app pods accept traffic from the gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-intra-namespace
+  namespace: {{ .Values.global.namespace }}
+spec:
+  podSelector: {}       # all pods can call each other within arogya-prod
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.global.namespace }}
+          podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-egress
+  namespace: {{ .Values.global.namespace }}
+spec:
+  podSelector: {}       # all pods can reach AWS, PubMed, Groq, etc.
+  policyTypes:
+    - Egress
+  egress:
+    - {}                # unrestricted egress
