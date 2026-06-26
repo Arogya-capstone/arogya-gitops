@@ -42,12 +42,12 @@ spec:
         - name: APP_ENV
           value: {{ $ns | replace "arogya-" "" | quote }}
         livenessProbe:
-          httpGet: { path: /health, port: http }
+          httpGet: { path: /healthz, port: http }
           initialDelaySeconds: 15
           periodSeconds: 20
           failureThreshold: 3
         readinessProbe:
-          httpGet: { path: /health, port: http }
+          httpGet: { path: /ready, port: http }
           initialDelaySeconds: 10
           periodSeconds: 10
           failureThreshold: 3
