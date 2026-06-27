@@ -40,6 +40,8 @@ spec:
           value: "us-east-1"
         - name: APP_ENV
           value: {{ $ns | replace "arogya-" "" | quote }}
+        - name: APP_SECRETS_PREFIX
+          value: {{ printf "arogya/%s/" ($ns | replace "arogya-" "") | quote }}
         - name: PYTHONDONTWRITEBYTECODE
           value: "1"
         - name: PYTHONUNBUFFERED
@@ -67,6 +69,8 @@ spec:
           value: "us-east-1"
         - name: APP_ENV
           value: {{ $ns | replace "arogya-" "" | quote }}
+        - name: APP_SECRETS_PREFIX
+          value: {{ printf "arogya/%s/" ($ns | replace "arogya-" "") | quote }}
         - name: PYTHONDONTWRITEBYTECODE
           value: "1"
         - name: PYTHONUNBUFFERED
