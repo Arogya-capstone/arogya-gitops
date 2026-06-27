@@ -69,22 +69,22 @@ spec:
     - name: rag-service
       port: 8005
 ---
-# JWT SecurityPolicy on protected routes
-apiVersion: gateway.kgateway.dev/v1alpha1
+# JWT SecurityPolicy on protected routes (Envoy Gateway)
+apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: jwt-policy
   namespace: {{ $ns }}
 spec:
-  targetRefs:
-  - group: gateway.networking.k8s.io
+  targetRef:
+    group: gateway.networking.k8s.io
     kind: HTTPRoute
     name: protected-routes
   jwt:
     providers:
     - name: arogya-auth
       issuer: "arogya-user-service"
-      audiences: ["arogya-api"]
-      localJwks:
-        inline: |
-          { "keys": [] }
+      audiences:
+      - "arogya-api"
+      remoteJWKS:
+        uri: "http://user-service:8001/api/auth/jwks"
