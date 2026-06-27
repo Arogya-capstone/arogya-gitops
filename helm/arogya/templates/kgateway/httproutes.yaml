@@ -11,14 +11,14 @@ spec:
   - name: arogya-gateway
     namespace: {{ $ns }}
   rules:
-  # /api/auth/* → user-service (existing)
+  # /api/auth/* → user-service
   - matches:
     - path: { type: PathPrefix, value: /api/auth }
     backendRefs:
     - name: user-service
       port: 8001
 
-  # POST /register → user-service (GET /register stays → frontend SPA)
+  # POST /register → user-service (GET /register → frontend SPA login page)
   - matches:
     - path: { type: Exact, value: /register }
       method: POST
@@ -26,7 +26,7 @@ spec:
     - name: user-service
       port: 8001
 
-  # POST /login → user-service (GET /login stays → frontend SPA)
+  # POST /login → user-service (GET /login → frontend SPA)
   - matches:
     - path: { type: Exact, value: /login }
       method: POST
@@ -34,7 +34,7 @@ spec:
     - name: user-service
       port: 8001
 
-  # /me, /doctors, /users → user-service (not SPA routes, safe for all methods)
+  # /me, /doctors, /users → user-service (pure API endpoints, not SPA pages)
   - matches:
     - path: { type: PathPrefix, value: /me }
     backendRefs:
@@ -51,35 +51,45 @@ spec:
     - name: user-service
       port: 8001
 
-  # /appointments → appointment-service (SPA navigation is client-side, direct refresh breaks but acceptable for demo)
+  # /appointments — only route when Authorization header present (API call).
+  # Browser page refresh (no auth header) falls through to frontend catch-all.
   - matches:
     - path: { type: PathPrefix, value: /appointments }
+      headers:
+      - name: Authorization
+        type: RegularExpression
+        value: "Bearer .+"
     backendRefs:
     - name: appointment-service
       port: 8002
 
-  # /health-records → health-service (SPA route is /records — no conflict)
+  # /health-records → health-service (SPA uses /records — no conflict)
   - matches:
     - path: { type: PathPrefix, value: /health-records }
     backendRefs:
     - name: health-service
       port: 8003
 
-  # /documents → document-service (SPA navigation is client-side, direct refresh breaks but acceptable for demo)
+  # /documents — only route when Authorization header present (API call).
+  # Browser page refresh (no auth header) falls through to frontend catch-all.
   - matches:
     - path: { type: PathPrefix, value: /documents }
+      headers:
+      - name: Authorization
+        type: RegularExpression
+        value: "Bearer .+"
     backendRefs:
     - name: document-service
       port: 8004
 
-  # /health → user-service health check (after /health-records — longer prefix wins in Gateway API)
+  # /health → user-service health check
   - matches:
     - path: { type: PathPrefix, value: /health }
     backendRefs:
     - name: user-service
       port: 8001
 
-  # Frontend catch-all (SPA — serves index.html for all unknown paths)
+  # Frontend catch-all — serves index.html for SPA routing and unauthenticated page refreshes
   - matches:
     - path: { type: PathPrefix, value: / }
     backendRefs:
