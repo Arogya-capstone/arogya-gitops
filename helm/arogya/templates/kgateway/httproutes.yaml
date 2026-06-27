@@ -11,23 +11,82 @@ spec:
   - name: arogya-gateway
     namespace: {{ $ns }}
   rules:
+  # /api/auth/* → user-service (existing)
   - matches:
     - path: { type: PathPrefix, value: /api/auth }
     backendRefs:
     - name: user-service
       port: 8001
+
+  # POST /register → user-service (GET /register stays → frontend SPA)
+  - matches:
+    - path: { type: Exact, value: /register }
+      method: POST
+    backendRefs:
+    - name: user-service
+      port: 8001
+
+  # POST /login → user-service (GET /login stays → frontend SPA)
+  - matches:
+    - path: { type: Exact, value: /login }
+      method: POST
+    backendRefs:
+    - name: user-service
+      port: 8001
+
+  # /me, /doctors, /users → user-service (not SPA routes, safe for all methods)
+  - matches:
+    - path: { type: PathPrefix, value: /me }
+    backendRefs:
+    - name: user-service
+      port: 8001
+  - matches:
+    - path: { type: PathPrefix, value: /doctors }
+    backendRefs:
+    - name: user-service
+      port: 8001
+  - matches:
+    - path: { type: PathPrefix, value: /users }
+    backendRefs:
+    - name: user-service
+      port: 8001
+
+  # /appointments → appointment-service (SPA navigation is client-side, direct refresh breaks but acceptable for demo)
+  - matches:
+    - path: { type: PathPrefix, value: /appointments }
+    backendRefs:
+    - name: appointment-service
+      port: 8002
+
+  # /health-records → health-service (SPA route is /records — no conflict)
+  - matches:
+    - path: { type: PathPrefix, value: /health-records }
+    backendRefs:
+    - name: health-service
+      port: 8003
+
+  # /documents → document-service (SPA navigation is client-side, direct refresh breaks but acceptable for demo)
+  - matches:
+    - path: { type: PathPrefix, value: /documents }
+    backendRefs:
+    - name: document-service
+      port: 8004
+
+  # /health → user-service health check (after /health-records — longer prefix wins in Gateway API)
   - matches:
     - path: { type: PathPrefix, value: /health }
     backendRefs:
     - name: user-service
       port: 8001
+
+  # Frontend catch-all (SPA — serves index.html for all unknown paths)
   - matches:
     - path: { type: PathPrefix, value: / }
     backendRefs:
     - name: frontend
       port: 8080
 ---
-# Protected routes (JWT required — enforced by SecurityPolicy)
+# Protected routes (SecurityPolicy removed — JWT enforced in service layer)
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
