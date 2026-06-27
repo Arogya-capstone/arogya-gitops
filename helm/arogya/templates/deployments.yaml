@@ -75,6 +75,12 @@ spec:
           value: "1"
         - name: PYTHONUNBUFFERED
           value: "1"
+        {{- if eq $name "document-service" }}
+        - name: S3_ENDPOINT
+          value: ""
+        - name: S3_BUCKET_NAME
+          value: {{ $.Values.s3.bucketName | quote }}
+        {{- end }}
         volumeMounts:
         - name: tmp
           mountPath: /tmp
@@ -154,6 +160,8 @@ spec:
           value: "1"
         - name: PYTHONUNBUFFERED
           value: "1"
+        - name: S3_BUCKET_NAME
+          value: {{ .Values.s3.bucketName | quote }}
         volumeMounts:
         - name: tmp
           mountPath: /tmp
