@@ -67,6 +67,13 @@ spec:
           value: "us-east-1"
         - name: APP_ENV
           value: {{ $ns | replace "arogya-" "" | quote }}
+        - name: PYTHONDONTWRITEBYTECODE
+          value: "1"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         livenessProbe:
           httpGet: { path: /healthz, port: http }
           initialDelaySeconds: 15
@@ -96,6 +103,9 @@ spec:
         labelSelector:
           matchLabels:
             app: {{ $name }}
+      volumes:
+      - name: tmp
+        emptyDir: {}
 {{- end }}
 {{- end }}
 
@@ -136,6 +146,13 @@ spec:
           value: {{ .Values.ragWorker.chunkSize | quote }}
         - name: CHUNK_OVERLAP
           value: {{ .Values.ragWorker.chunkOverlap | quote }}
+        - name: PYTHONDONTWRITEBYTECODE
+          value: "1"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         resources:
           requests:
             cpu: {{ .Values.ragWorker.resources.requests.cpu | quote }}
@@ -148,4 +165,7 @@ spec:
           readOnlyRootFilesystem: true
           capabilities:
             drop: ["ALL"]
+      volumes:
+      - name: tmp
+        emptyDir: {}
 {{- end }}
