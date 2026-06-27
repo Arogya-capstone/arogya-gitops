@@ -80,6 +80,8 @@ spec:
           value: ""
         - name: S3_BUCKET_NAME
           value: {{ $.Values.s3.bucketName | quote }}
+        - name: SQS_RAG_QUEUE_URL
+          value: {{ $.Values.ragWorker.sqsQueueUrl | quote }}
         {{- end }}
         volumeMounts:
         - name: tmp
