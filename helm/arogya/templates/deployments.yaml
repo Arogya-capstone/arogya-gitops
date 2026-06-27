@@ -164,6 +164,8 @@ spec:
           value: "1"
         - name: S3_BUCKET_NAME
           value: {{ .Values.s3.bucketName | quote }}
+        - name: SQS_RAG_QUEUE_URL
+          value: {{ .Values.ragWorker.sqsQueueUrl | quote }}
         volumeMounts:
         - name: tmp
           mountPath: /tmp
