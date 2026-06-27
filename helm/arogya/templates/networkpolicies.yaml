@@ -1,6 +1,6 @@
 # Network policies for arogya-prod
 # 1. Default deny all ingress — nothing gets in unless explicitly allowed
-# 2. Allow traffic from KGateway (envoy-gateway-system) to all app pods
+# 2. Allow traffic from Envoy Gateway (envoy-gateway-system) to all app pods
 # 3. Allow intra-namespace — services talk to each other internally
 # 4. Allow all egress — pods reach AWS services, PubMed, Groq, etc.
 
@@ -29,7 +29,7 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: kgateway-system
+              kubernetes.io/metadata.name: envoy-gateway-system
 
 ---
 apiVersion: networking.k8s.io/v1
