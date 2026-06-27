@@ -29,7 +29,7 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: envoy-gateway-system
+              kubernetes.io/metadata.name: kgateway-system
 
 ---
 apiVersion: networking.k8s.io/v1

@@ -27,10 +27,10 @@ ragWorker:
   sqsQueueUrl: "https://sqs.us-east-1.amazonaws.com/371454942267/arogya-prod-rag-processing"
 
 irsa:
-  userServiceRoleArn: ""        # populated after terraform apply
-  appointmentServiceRoleArn: ""
-  healthServiceRoleArn: ""
-  documentServiceRoleArn: ""
-  ragServiceRoleArn: ""
-  ragWorkerRoleArn: ""
-  kedaRoleArn: ""
+  userServiceRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-user-service"
+  appointmentServiceRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-appointment-service"
+  healthServiceRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-health-service"
+  documentServiceRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-document-service"
+  ragServiceRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-rag-service"
+  ragWorkerRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-rag-worker"
+  kedaRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-keda"

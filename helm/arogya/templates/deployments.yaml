@@ -29,6 +29,32 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+      {{- if $svc.migrations }}
+      initContainers:
+      - name: migrate
+        image: {{ $registry }}/arogya/{{ $name }}:{{ $tag }}
+        imagePullPolicy: Always
+        command: ["alembic", "upgrade", "head"]
+        env:
+        - name: AWS_DEFAULT_REGION
+          value: "us-east-1"
+        - name: APP_ENV
+          value: {{ $ns | replace "arogya-" "" | quote }}
+        - name: PYTHONDONTWRITEBYTECODE
+          value: "1"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests: { cpu: "100m", memory: "128Mi" }
+          limits:   { cpu: "200m", memory: "256Mi" }
+      {{- end }}
       containers:
       - name: {{ $name }}
         image: {{ $registry }}/arogya/{{ $name }}:{{ $tag }}
