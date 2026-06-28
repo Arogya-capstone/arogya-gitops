@@ -1,7 +1,7 @@
 # Prod environment overrides — updated by CD pipeline (after manual approval)
 global:
   imageRegistry: "371454942267.dkr.ecr.us-east-1.amazonaws.com"
-  imageTag: "sha-de50a21"
+  imageTag: "sha-d369795"
   awsRegion: "us-east-1"
   awsAccountId: "371454942267"
   namespace: "arogya-prod"
