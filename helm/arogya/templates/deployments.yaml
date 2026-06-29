@@ -75,6 +75,10 @@ spec:
           value: "1"
         - name: PYTHONUNBUFFERED
           value: "1"
+        {{- if eq $name "appointment-service" }}
+        - name: SQS_QUEUE_URL
+          value: {{ $.Values.appointmentService.sqsQueueUrl | quote }}
+        {{- end }}
         {{- if eq $name "document-service" }}
         - name: S3_ENDPOINT
           value: ""

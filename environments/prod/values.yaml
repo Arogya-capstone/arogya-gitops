@@ -26,6 +26,9 @@ services:
 ragWorker:
   sqsQueueUrl: "https://sqs.us-east-1.amazonaws.com/371454942267/arogya-prod-rag-processing"
 
+appointmentService:
+  sqsQueueUrl: "https://sqs.us-east-1.amazonaws.com/371454942267/arogya-prod-appointment-events"
+
 irsa:
   userServiceRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-user-service"
   appointmentServiceRoleArn: "arn:aws:iam::371454942267:role/arogya-prod-sa-appointment-service"

@@ -59,6 +59,9 @@ services:
       requests: { cpu: "100m", memory: "128Mi" }
       limits:   { cpu: "300m", memory: "256Mi" }
 
+appointmentService:
+  sqsQueueUrl: ""            # set per environment
+
 ragWorker:
   enabled: true
   sqsQueueUrl: ""            # set per environment
