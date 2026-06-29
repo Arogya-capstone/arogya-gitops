@@ -78,6 +78,8 @@ spec:
         {{- if eq $name "appointment-service" }}
         - name: SQS_QUEUE_URL
           value: {{ $.Values.appointmentService.sqsQueueUrl | quote }}
+        - name: INTERNAL_ALB_DNS
+          value: {{ printf "http://user-service.%s.svc.cluster.local:8001" $ns | quote }}
         {{- end }}
         {{- if eq $name "document-service" }}
         - name: S3_ENDPOINT
