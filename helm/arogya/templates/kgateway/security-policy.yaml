@@ -1,0 +1,18 @@
+{{- $ns := .Values.global.namespace }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: jwt-policy
+  namespace: {{ $ns }}
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: protected-routes
+    namespace: {{ $ns }}
+  jwt:
+    providers:
+    - name: arogya
+      issuer: arogya-user-service
+      remoteJWKS:
+        uri: http://user-service.{{ $ns }}.svc.cluster.local:8001/.well-known/jwks.json
